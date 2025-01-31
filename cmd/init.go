@@ -159,7 +159,13 @@ func initAction(c *cli.Context) {
 			os.Exit(1)
 		}
 
-		key, err = pkix.NewKeyFromPrivateKeyPEM(keyBytes)
+		// If the private key is encrypted, we need to decrypt it with the given passphrase
+		if len(passphrase) > 0 {
+			key, err = pkix.NewKeyFromEncryptedPrivateKeyPEM(keyBytes, passphrase)
+		} else {
+			key, err = pkix.NewKeyFromPrivateKeyPEM(keyBytes)
+		}
+
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Read Key error:", err)
 			os.Exit(1)
