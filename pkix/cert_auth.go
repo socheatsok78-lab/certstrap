@@ -38,6 +38,13 @@ func CreateCertificateAuthority(key *Key, organizationalUnit string, expiry time
 func CreateCertificateAuthorityWithOptions(key *Key, organizationalUnit string, expiry time.Time, organization string, country string, province string, locality string, commonName string, permitDomains []string, opts ...Option) (*Certificate, error) {
 	authTemplate := newAuthTemplate()
 
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	if err != nil {
+		return nil, err
+	}
+	authTemplate.SerialNumber.Set(serialNumber)
+
 	subjectKeyID, err := GenerateSubjectKeyID(key.Public)
 	if err != nil {
 		return nil, err
