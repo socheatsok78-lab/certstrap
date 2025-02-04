@@ -85,13 +85,13 @@ func NewInitCommand() cli.Command {
 				Name:  "key",
 				Usage: "Path to private key PEM file (if blank, will generate new key pair)",
 			},
-			cli.BoolFlag{
-				Name:  "stdout",
-				Usage: "Print certificate to stdout in addition to saving file",
-			},
 			cli.StringSliceFlag{
 				Name:  "permit-domain",
 				Usage: "Create a CA restricted to subdomains of this domain (can be specified multiple times)",
+			},
+			cli.StringSliceFlag{
+				Name:  "crl-distribution-point",
+				Usage: "Sets the CRL Distribution Point (CRLDP) field of the certificate",
 			},
 			cli.IntFlag{
 				Name:  "path-length",
@@ -101,6 +101,10 @@ func NewInitCommand() cli.Command {
 			cli.BoolFlag{
 				Name:  "exclude-path-length",
 				Usage: "Exclude 'Path Length Constraint' from this CA certificate",
+			},
+			cli.BoolFlag{
+				Name:  "stdout",
+				Usage: "Print certificate to stdout in addition to saving file",
 			},
 		},
 		Action: initAction,
@@ -197,6 +201,7 @@ func initAction(c *cli.Context) {
 	}
 
 	opts := []pkix.Option{
+		pkix.WithCRLDistributionPoints(c.StringSlice("crl-distribution-point")),
 		pkix.WithPathlenOption(c.Int("path-length"), c.Bool("exclude-path-length")),
 	}
 
